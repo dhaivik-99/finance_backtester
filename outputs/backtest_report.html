@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSLA Backtester Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0d1117;
+    --surface2: #161b22;
+    --border: #21262d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --green: #3fb950;
+    --red: #f85149;
+    --blue: #58a6ff;
+    --gold: #d29922;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; padding:40px 24px; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(88,166,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(88,166,255,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .wrap { max-width:1100px; margin:0 auto; position:relative; }
+  h1 { font-size:36px; font-weight:800; letter-spacing:-1px; }
+  h1 span { color:var(--blue); }
+  .sub { color:var(--muted); font-family:'Space Mono',monospace; font-size:12px; margin-top:6px; margin-bottom:40px; }
+  .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px; }
+  .metric { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; }
+  .metric-label { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .metric-value { font-size:26px; font-weight:800; font-family:'Space Mono',monospace; }
+  .metric-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+  .green { color:var(--green) !important; }
+  .red { color:var(--red) !important; }
+  .gold { color:var(--gold) !important; }
+  .neutral { color:var(--muted); }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:24px; }
+  .card h2 { font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:20px; }
+  canvas { width:100% !important; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; padding:10px 14px; font-size:11px; font-family:'Space Mono',monospace; letter-spacing:1px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+  td { padding:14px; font-size:13px; border-bottom:1px solid #0d1117; font-family:'Space Mono',monospace; }
+  tr:hover td { background:rgba(88,166,255,0.03); }
+  .badge { padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; font-family:'Space Mono',monospace; }
+  .badge-buy { background:rgba(63,185,80,0.15); color:var(--green); }
+  .badge-sell { background:rgba(248,81,73,0.15); color:var(--red); }
+  .strategy-box { background:var(--surface2); border-radius:12px; padding:20px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .strategy-item { display:flex; flex-direction:column; gap:4px; }
+  .strategy-label { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+  .strategy-value { font-size:15px; font-weight:700; font-family:'Space Mono',monospace; }
+  .footer { text-align:center; color:var(--border); font-size:12px; margin-top:40px; font-family:'Space Mono',monospace; }
+  .vs-bar { display:flex; gap:16px; margin-bottom:16px; }
+  .vs-item { flex:1; background:var(--surface2); border-radius:10px; padding:16px; text-align:center; }
+  .vs-label { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:6px; }
+  .vs-val { font-size:20px; font-weight:800; font-family:'Space Mono',monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>📊 <span>TSLA</span> Backtest Report</h1>
+  <p class="sub">Generated on May 20, 2026 at 01:39 PM · MA(20/50) Crossover Strategy · 2 Year Period</p>
+
+  <!-- Strategy Config -->
+  <div class="strategy-box">
+    <div class="strategy-item">
+      <div class="strategy-label">TICKER</div>
+      <div class="strategy-value">TSLA</div>
+    </div>
+    <div class="strategy-item">
+      <div class="strategy-label">STARTING CAPITAL</div>
+      <div class="strategy-value">$10,000</div>
+    </div>
+    <div class="strategy-item">
+      <div class="strategy-label">STRATEGY</div>
+      <div class="strategy-value">MA 20/50</div>
+    </div>
+  </div>
+
+  <!-- Key Metrics -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Final Value</div>
+      <div class="metric-value">$15,981</div>
+      <div class="metric-sub">Started with $10,000</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total Return</div>
+      <div class="metric-value green">+59.81%</div>
+      <div class="metric-sub">Over 2 years</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">CAGR</div>
+      <div class="metric-value">26.66%</div>
+      <div class="metric-sub">Annual growth rate</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Sharpe Ratio</div>
+      <div class="metric-value gold">0.66</div>
+      <div class="metric-sub">&gt;1.0 is good</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Max Drawdown</div>
+      <div class="metric-value red">-26.09%</div>
+      <div class="metric-sub">Worst peak-to-trough</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Win Rate</div>
+      <div class="metric-value">60.0%</div>
+      <div class="metric-sub">3/5 trades won</div>
+    </div>
+  </div>
+
+  <!-- vs Buy & Hold -->
+  <div class="card">
+    <h2>Strategy vs Buy &amp; Hold</h2>
+    <div class="vs-bar">
+      <div class="vs-item">
+        <div class="vs-label">YOUR STRATEGY</div>
+        <div class="vs-val green">+59.81%</div>
+      </div>
+      <div class="vs-item">
+        <div class="vs-label">BUY &amp; HOLD</div>
+        <div class="vs-val green">+130.99%</div>
+      </div>
+      <div class="vs-item">
+        <div class="vs-label">ALPHA (EDGE)</div>
+        <div class="vs-val red">-71.17%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Value Chart -->
+  <div class="card">
+    <h2>Portfolio Value Over Time</h2>
+    <canvas id="portfolioChart" height="250"></canvas>
+  </div>
+
+  <!-- Price + MA Chart -->
+  <div class="card">
+    <h2>Price Chart with Moving Averages</h2>
+    <canvas id="priceChart" height="250"></canvas>
+  </div>
+
+  <!-- Trade Log -->
+  <div class="card">
+    <h2>Trade Log (10 total trades)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th><th>Date</th><th>Price</th><th>Shares</th><th>Profit/Loss</th><th>Return</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr>
+                <td><span class="badge badge-buy">BUY</span></td>
+                <td>2024-09-23</td>
+                <td>$250.00</td>
+                <td>38</td>
+                <td>—</td>
+                <td class="neutral">—</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-sell">SELL</span></td>
+                <td>2025-02-07</td>
+                <td>$361.62</td>
+                <td>38</td>
+                <td class="green">+$4,241.56</td>
+                <td class="green">+44.65%</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-buy">BUY</span></td>
+                <td>2025-05-06</td>
+                <td>$275.35</td>
+                <td>49</td>
+                <td>—</td>
+                <td class="neutral">—</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-sell">SELL</span></td>
+                <td>2025-07-10</td>
+                <td>$309.87</td>
+                <td>49</td>
+                <td class="green">+$1,691.48</td>
+                <td class="green">+12.54%</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-buy">BUY</span></td>
+                <td>2025-08-11</td>
+                <td>$339.03</td>
+                <td>44</td>
+                <td>—</td>
+                <td class="neutral">—</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-sell">SELL</span></td>
+                <td>2025-11-21</td>
+                <td>$391.09</td>
+                <td>44</td>
+                <td class="green">+$2,290.64</td>
+                <td class="green">+15.36%</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-buy">BUY</span></td>
+                <td>2025-12-17</td>
+                <td>$467.26</td>
+                <td>37</td>
+                <td>—</td>
+                <td class="neutral">—</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-sell">SELL</span></td>
+                <td>2026-01-27</td>
+                <td>$430.90</td>
+                <td>37</td>
+                <td class="red">$1,345.32</td>
+                <td class="red">-7.78%</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-buy">BUY</span></td>
+                <td>2026-05-08</td>
+                <td>$428.35</td>
+                <td>37</td>
+                <td>—</td>
+                <td class="neutral">—</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-sell">SELL</span></td>
+                <td>2026-05-19</td>
+                <td>$404.11</td>
+                <td>37</td>
+                <td class="red">$896.88</td>
+                <td class="red">-5.66%</td>
+            </tr></tbody>
+    </table>
+  </div>
+
+  <p class="footer">Built with Python · Data from Yahoo Finance · For educational purposes only · Not financial advice</p>
+</div>
+
+<script>
+// ── Portfolio Value Chart ──────────────────────────────────
+(function() {
+  const canvas = document.getElementById('portfolioChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = 250;
+  canvas.width = W; canvas.height = H;
+
+  const dates  = ["2024-05-21", "2024-05-24", "2024-05-30", "2024-06-04", "2024-06-07", "2024-06-12", "2024-06-17", "2024-06-21", "2024-06-26", "2024-07-01", "2024-07-05", "2024-07-10", "2024-07-15", "2024-07-18", "2024-07-23", "2024-07-26", "2024-07-31", "2024-08-05", "2024-08-08", "2024-08-13", "2024-08-16", "2024-08-21", "2024-08-26", "2024-08-29", "2024-09-04", "2024-09-09", "2024-09-12", "2024-09-17", "2024-09-20", "2024-09-25", "2024-09-30", "2024-10-03", "2024-10-08", "2024-10-11", "2024-10-16", "2024-10-21", "2024-10-24", "2024-10-29", "2024-11-01", "2024-11-06", "2024-11-11", "2024-11-14", "2024-11-19", "2024-11-22", "2024-11-27", "2024-12-03", "2024-12-06", "2024-12-11", "2024-12-16", "2024-12-19", "2024-12-24", "2024-12-30", "2025-01-03", "2025-01-08", "2025-01-14", "2025-01-17", "2025-01-23", "2025-01-28", "2025-01-31", "2025-02-05", "2025-02-10", "2025-02-13", "2025-02-19", "2025-02-24", "2025-02-27", "2025-03-04", "2025-03-07", "2025-03-12", "2025-03-17", "2025-03-20", "2025-03-25", "2025-03-28", "2025-04-02", "2025-04-07", "2025-04-10", "2025-04-15", "2025-04-21", "2025-04-24", "2025-04-29", "2025-05-02", "2025-05-07", "2025-05-12", "2025-05-15", "2025-05-20", "2025-05-23", "2025-05-29", "2025-06-03", "2025-06-06", "2025-06-11", "2025-06-16", "2025-06-20", "2025-06-25", "2025-06-30", "2025-07-03", "2025-07-09", "2025-07-14", "2025-07-17", "2025-07-22", "2025-07-25", "2025-07-30", "2025-08-04", "2025-08-07", "2025-08-12", "2025-08-15", "2025-08-20", "2025-08-25", "2025-08-28", "2025-09-03", "2025-09-08", "2025-09-11", "2025-09-16", "2025-09-19", "2025-09-24", "2025-09-29", "2025-10-02", "2025-10-07", "2025-10-10", "2025-10-15", "2025-10-20", "2025-10-23", "2025-10-28", "2025-10-31", "2025-11-05", "2025-11-10", "2025-11-13", "2025-11-18", "2025-11-21", "2025-11-26", "2025-12-02", "2025-12-05", "2025-12-10", "2025-12-15", "2025-12-18", "2025-12-23", "2025-12-29", "2026-01-02", "2026-01-07", "2026-01-12", "2026-01-15", "2026-01-21", "2026-01-26", "2026-01-29", "2026-02-03", "2026-02-06", "2026-02-11", "2026-02-17", "2026-02-20", "2026-02-25", "2026-03-02", "2026-03-05", "2026-03-10", "2026-03-13", "2026-03-18", "2026-03-23", "2026-03-26", "2026-03-31", "2026-04-06", "2026-04-09", "2026-04-14", "2026-04-17", "2026-04-22", "2026-04-27", "2026-04-30", "2026-05-05", "2026-05-08", "2026-05-13", "2026-05-18"];
+  const values = [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10000.0, 10266.76, 10441.94, 9645.08, 9791.0, 8776.4, 8910.54, 8816.3, 10398.24, 10361.76, 9961.24, 11464.14, 13800.0, 12324.84, 13648.0, 13897.28, 13149.82, 13853.96, 15290.36, 16641.26, 18094.76, 17074.46, 18066.64, 16361.58, 16096.72, 15507.72, 15561.68, 16707.0, 16170.44, 15627.42, 15874.8, 14870.46, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14241.56, 14284.19, 16350.03, 17547.59, 17596.59, 17377.07, 18312.48, 17618.64, 15211.27, 16744.48, 16876.78, 16535.25, 16799.36, 16314.75, 16201.56, 15247.53, 15933.04, 15933.04, 15933.04, 15933.04, 15933.04, 15933.04, 15933.04, 16012.68, 15560.36, 15267.32, 16266.12, 16238.84, 15715.68, 16257.32, 17243.36, 19567.0, 19762.8, 20498.48, 20516.96, 20199.72, 20071.68, 19209.28, 20162.32, 20702.64, 20770.84, 21279.92, 21104.36, 21346.8, 20605.84, 18703.28, 18670.72, 18223.68, 18223.68, 18223.68, 18223.68, 18223.68, 18223.68, 18819.75, 18900.78, 17941.74, 17143.65, 16897.23, 17546.58, 17162.15, 16898.34, 17037.46, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 16878.36, 17504.4, 16199.04];
+  const start  = 10000;
+
+  const pad = {top:20, bottom:30, left:70, right:10};
+  const min = Math.min(...values) * 0.98;
+  const max = Math.max(...values) * 1.02;
+  const xOf = i => pad.left + (i/(values.length-1))*(W-pad.left-pad.right);
+  const yOf = v => pad.top + (1-(v-min)/(max-min))*(H-pad.top-pad.bottom);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+  for(let i=0;i<=4;i++) {
+    const yp = pad.top + i/4*(H-pad.top-pad.bottom);
+    ctx.beginPath(); ctx.moveTo(pad.left,yp); ctx.lineTo(W-pad.right,yp); ctx.stroke();
+    const val = max - i/4*(max-min);
+    ctx.fillStyle='#7d8590'; ctx.font='10px Space Mono';
+    ctx.fillText('$'+Math.round(val).toLocaleString(), 2, yp+4);
+  }
+
+  // Starting line
+  ctx.strokeStyle='rgba(88,166,255,0.3)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  const startY = yOf(start);
+  ctx.beginPath(); ctx.moveTo(pad.left,startY); ctx.lineTo(W-pad.right,startY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Fill
+  const finalUp = values[values.length-1] >= start;
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), yOf(values[0]));
+  values.forEach((v,i) => ctx.lineTo(xOf(i), yOf(v)));
+  ctx.lineTo(xOf(values.length-1), H-pad.bottom);
+  ctx.lineTo(xOf(0), H-pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = finalUp ? 'rgba(63,185,80,0.07)' : 'rgba(248,81,73,0.07)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), yOf(values[0]));
+  values.forEach((v,i) => ctx.lineTo(xOf(i), yOf(v)));
+  ctx.strokeStyle = finalUp ? '#3fb950' : '#f85149';
+  ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+  // Date labels
+  ctx.fillStyle='#7d8590'; ctx.font='9px Space Mono';
+  [0, Math.floor(dates.length/2), dates.length-1].forEach(i => {
+    ctx.fillText(dates[i], xOf(i)-20, H-8);
+  });
+})();
+
+// ── Price + MA Chart ───────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = 250;
+  canvas.width = W; canvas.height = H;
+
+  const dates  = ["2024-05-20", "2024-05-23", "2024-05-29", "2024-06-03", "2024-06-06", "2024-06-11", "2024-06-14", "2024-06-20", "2024-06-25", "2024-06-28", "2024-07-03", "2024-07-09", "2024-07-12", "2024-07-17", "2024-07-22", "2024-07-25", "2024-07-30", "2024-08-02", "2024-08-07", "2024-08-12", "2024-08-15", "2024-08-20", "2024-08-23", "2024-08-28", "2024-09-03", "2024-09-06", "2024-09-11", "2024-09-16", "2024-09-19", "2024-09-24", "2024-09-27", "2024-10-02", "2024-10-07", "2024-10-10", "2024-10-15", "2024-10-18", "2024-10-23", "2024-10-28", "2024-10-31", "2024-11-05", "2024-11-08", "2024-11-13", "2024-11-18", "2024-11-21", "2024-11-26", "2024-12-02", "2024-12-05", "2024-12-10", "2024-12-13", "2024-12-18", "2024-12-23", "2024-12-27", "2025-01-02", "2025-01-07", "2025-01-13", "2025-01-16", "2025-01-22", "2025-01-27", "2025-01-30", "2025-02-04", "2025-02-07", "2025-02-12", "2025-02-18", "2025-02-21", "2025-02-26", "2025-03-03", "2025-03-06", "2025-03-11", "2025-03-14", "2025-03-19", "2025-03-24", "2025-03-27", "2025-04-01", "2025-04-04", "2025-04-09", "2025-04-14", "2025-04-17", "2025-04-23", "2025-04-28", "2025-05-01", "2025-05-06", "2025-05-09", "2025-05-14", "2025-05-19", "2025-05-22", "2025-05-28", "2025-06-02", "2025-06-05", "2025-06-10", "2025-06-13", "2025-06-18", "2025-06-24", "2025-06-27", "2025-07-02", "2025-07-08", "2025-07-11", "2025-07-16", "2025-07-21", "2025-07-24", "2025-07-29", "2025-08-01", "2025-08-06", "2025-08-11", "2025-08-14", "2025-08-19", "2025-08-22", "2025-08-27", "2025-09-02", "2025-09-05", "2025-09-10", "2025-09-15", "2025-09-18", "2025-09-23", "2025-09-26", "2025-10-01", "2025-10-06", "2025-10-09", "2025-10-14", "2025-10-17", "2025-10-22", "2025-10-27", "2025-10-30", "2025-11-04", "2025-11-07", "2025-11-12", "2025-11-17", "2025-11-20", "2025-11-25", "2025-12-01", "2025-12-04", "2025-12-09", "2025-12-12", "2025-12-17", "2025-12-22", "2025-12-26", "2025-12-31", "2026-01-06", "2026-01-09", "2026-01-14", "2026-01-20", "2026-01-23", "2026-01-28", "2026-02-02", "2026-02-05", "2026-02-10", "2026-02-13", "2026-02-19", "2026-02-24", "2026-02-27", "2026-03-04", "2026-03-09", "2026-03-12", "2026-03-17", "2026-03-20", "2026-03-25", "2026-03-30", "2026-04-02", "2026-04-08", "2026-04-13", "2026-04-16", "2026-04-21", "2026-04-24", "2026-04-29", "2026-05-04", "2026-05-07", "2026-05-12", "2026-05-15"];
+  const closes = [174.95, 173.74, 176.19, 176.29, 177.94, 170.66, 178.01, 181.57, 187.35, 197.88, 246.39, 262.33, 248.23, 248.5, 251.51, 220.25, 222.62, 207.67, 191.76, 197.49, 214.14, 221.1, 220.32, 205.75, 210.6, 210.73, 228.13, 226.78, 243.92, 254.27, 260.46, 249.02, 240.83, 238.77, 219.57, 220.7, 213.65, 262.51, 249.85, 251.44, 321.22, 330.24, 338.74, 339.64, 338.23, 357.09, 369.49, 400.99, 436.23, 440.13, 430.6, 431.66, 379.28, 394.36, 403.31, 413.82, 415.11, 397.15, 400.28, 392.21, 361.62, 336.51, 354.11, 337.8, 290.8, 284.65, 263.45, 230.58, 249.98, 235.86, 278.39, 273.13, 268.46, 239.43, 272.2, 252.35, 241.37, 250.74, 285.88, 280.52, 275.35, 298.26, 347.68, 342.09, 341.04, 356.9, 342.69, 284.7, 326.09, 325.31, 322.05, 340.47, 323.63, 315.65, 297.81, 313.51, 321.67, 328.49, 305.3, 321.2, 302.63, 319.91, 339.03, 335.58, 329.31, 340.01, 349.6, 329.36, 350.84, 347.79, 410.04, 416.85, 425.85, 440.4, 459.46, 453.25, 435.54, 429.24, 439.31, 438.97, 452.42, 440.1, 444.26, 429.52, 430.6, 408.92, 395.23, 419.4, 430.14, 454.53, 445.17, 458.96, 467.26, 488.73, 475.19, 449.72, 432.96, 445.01, 439.2, 419.25, 449.06, 431.46, 421.81, 397.21, 425.21, 417.44, 411.71, 409.38, 402.51, 405.94, 398.68, 395.01, 399.27, 367.96, 385.95, 355.28, 360.59, 343.25, 352.42, 388.9, 386.42, 376.3, 372.8, 392.51, 411.79, 433.45, 422.24];
+  const sma    = [178.0235, 179.016, 182.013, 189.9315, 201.75, 213.289, 223.778, 233.303, 239.119, 242.587, 238.9585, 229.596, 222.3175, 215.7705, 211.913, 211.8235, 208.8925, 209.2715, 212.725, 215.9875, 218.7495, 220.3445, 225.261, 232.784, 239.0115, 242.7315, 244.742, 243.3215, 240.999, 235.458, 236.2515, 237.2125, 237.605, 248.057, 265.4905, 281.0005, 297.779, 309.687, 323.625, 338.4265, 349.02, 364.4795, 383.357, 396.037, 412.955, 420.298, 425.2585, 424.1305, 420.183, 415.659, 410.7675, 404.981, 404.3275, 400.0155, 391.082, 380.9495, 371.0095, 357.125, 340.405, 323.4315, 304.868, 290.758, 272.1915, 259.223, 257.112, 254.187, 253.3995, 254.726, 256.1455, 258.1255, 253.174, 254.254, 256.4705, 261.6115, 267.2535, 279.3215, 295.545, 309.108, 318.9215, 328.806, 335.2655, 336.683, 333.997, 330.579, 330.3945, 325.3315, 320.3615, 320.122, 318.03, 316.82, 317.6695, 315.333, 315.122, 315.0335, 317.5465, 320.08, 323.277, 323.516, 325.021, 329.123, 333.5755, 337.2035, 338.7855, 347.249, 361.047, 375.0175, 387.984, 405.4875, 419.653, 431.8405, 434.392, 436.1135, 437.421, 438.827, 439.926, 442.577, 445.066, 445.824, 440.8125, 434.3085, 428.3875, 424.8235, 422.614, 423.5685, 427.823, 438.7195, 451.869, 460.9885, 464.7005, 463.022, 461.823, 459.533, 452.2735, 445.992, 439.8585, 436.1865, 431.6435, 427.837, 424.7275, 422.001, 416.3715, 413.85, 410.2255, 409.557, 406.1205, 403.165, 398.4745, 394.6355, 388.376, 383.86, 376.2635, 368.9115, 366.7835, 369.305, 369.127, 371.0585, 374.573, 382.7915, 394.853, 401.32];
+  const lma    = [208.4656, 209.6294, 210.9214, 212.8056, 215.396, 218.0462, 219.6512, 221.2822, 223.1624, 224.4706, 223.6248, 222.034, 222.0464, 222.3946, 223.0262, 224.5368, 225.2874, 225.9498, 227.3834, 228.2864, 231.4972, 233.4938, 235.4752, 241.1836, 248.4758, 254.7452, 261.6164, 268.5052, 275.0206, 281.3716, 289.4454, 300.0734, 313.0254, 324.8296, 338.5898, 349.3916, 359.8666, 367.902, 377.5424, 387.1998, 392.1594, 396.5106, 400.0112, 401.6088, 401.7294, 401.9738, 400.6962, 394.8678, 385.7124, 374.881, 362.9102, 351.6212, 341.7336, 332.9938, 325.7722, 316.2248, 306.983, 297.4936, 288.7552, 280.4146, 273.0054, 269.1932, 264.8772, 261.279, 260.954, 263.9632, 268.5566, 274.9298, 281.539, 288.542, 291.4576, 293.879, 297.0884, 301.639, 306.936, 311.2998, 315.7718, 318.9494, 320.0774, 322.0666, 324.981, 326.3512, 325.1168, 322.9978, 321.4556, 319.7102, 319.3578, 321.0206, 321.479, 322.9654, 323.9384, 324.0736, 325.5554, 330.417, 337.951, 344.868, 351.9624, 359.1052, 366.4084, 373.2382, 380.4076, 387.4538, 393.8434, 400.4354, 407.9112, 415.1606, 420.9656, 427.3282, 430.918, 433.656, 433.6694, 434.0316, 434.5848, 435.2398, 435.5822, 437.9078, 441.2194, 444.1366, 445.1026, 444.9456, 444.2562, 443.8, 442.2124, 442.3964, 442.9034, 443.9886, 444.686, 444.4836, 443.9482, 441.496, 439.1926, 436.1392, 431.3628, 426.2722, 421.909, 418.7852, 415.2852, 411.6864, 406.9714, 403.4796, 397.6616, 393.023, 390.4404, 389.7446, 387.0792, 384.7262, 383.3284, 382.794, 384.6418, 386.7796];
+  const buys   = [{"date": "2024-09-23", "price": 250.0}, {"date": "2025-05-06", "price": 275.35}, {"date": "2025-08-11", "price": 339.03}, {"date": "2025-12-17", "price": 467.26}, {"date": "2026-05-08", "price": 428.35}];
+  const sells  = [{"date": "2025-02-07", "price": 361.62}, {"date": "2025-07-10", "price": 309.87}, {"date": "2025-11-21", "price": 391.09}, {"date": "2026-01-27", "price": 430.9}, {"date": "2026-05-19", "price": 404.11}];
+
+  const pad = {top:20, bottom:30, left:70, right:10};
+  const allVals = [...closes, ...sma, ...lma].filter(v => v !== null);
+  const min = Math.min(...allVals) * 0.98;
+  const max = Math.max(...allVals) * 1.02;
+  const xOf = i => pad.left + (i/(closes.length-1))*(W-pad.left-pad.right);
+  const yOf = v => pad.top + (1-(v-min)/(max-min))*(H-pad.top-pad.bottom);
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++) {
+    const yp = pad.top + i/4*(H-pad.top-pad.bottom);
+    ctx.beginPath(); ctx.moveTo(pad.left,yp); ctx.lineTo(W-pad.right,yp); ctx.stroke();
+    const val = max - i/4*(max-min);
+    ctx.fillStyle='#7d8590'; ctx.font='10px Space Mono';
+    ctx.fillText('$'+Math.round(val), 2, yp+4);
+  }
+
+  // Price line
+  ctx.beginPath(); ctx.moveTo(xOf(0), yOf(closes[0]));
+  closes.forEach((v,i) => ctx.lineTo(xOf(i), yOf(v)));
+  ctx.strokeStyle='rgba(88,166,255,0.6)'; ctx.lineWidth=1.5; ctx.lineJoin='round'; ctx.stroke();
+
+  // Short MA
+  ctx.beginPath();
+  let started = false;
+  sma.forEach((v,i) => {
+    if(v===null) return;
+    const xi = xOf(i); const yi = yOf(v);
+    if(!started) { ctx.moveTo(xi,yi); started=true; } else ctx.lineTo(xi,yi);
+  });
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Long MA
+  ctx.beginPath(); started=false;
+  lma.forEach((v,i) => {
+    if(v===null) return;
+    const xi = xOf(i); const yi = yOf(v);
+    if(!started) { ctx.moveTo(xi,yi); started=true; } else ctx.lineTo(xi,yi);
+  });
+  ctx.strokeStyle='#ec4899'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Buy markers
+  buys.forEach(b => {
+    const idx = dates.indexOf(b.date);
+    if(idx<0) return;
+    const xi=xOf(idx); const yi=yOf(b.price);
+    ctx.beginPath(); ctx.arc(xi,yi,5,0,Math.PI*2);
+    ctx.fillStyle='#3fb950'; ctx.fill();
+  });
+
+  // Sell markers
+  sells.forEach(s => {
+    const idx = dates.indexOf(s.date);
+    if(idx<0) return;
+    const xi=xOf(idx); const yi=yOf(s.price);
+    ctx.beginPath(); ctx.arc(xi,yi,5,0,Math.PI*2);
+    ctx.fillStyle='#f85149'; ctx.fill();
+  });
+
+  // Legend
+  const leg = [
+    {color:'rgba(88,166,255,0.6)', label:'Price'},
+    {color:'#f59e0b', label:'MA20'},
+    {color:'#ec4899', label:'MA50'},
+    {color:'#3fb950', label:'Buy'},
+    {color:'#f85149', label:'Sell'},
+  ];
+  leg.forEach((l,i) => {
+    ctx.fillStyle=l.color;
+    ctx.fillRect(pad.left + i*80, H-12, 10, 10);
+    ctx.fillStyle='#7d8590'; ctx.font='9px Space Mono';
+    ctx.fillText(l.label, pad.left+i*80+14, H-4);
+  });
+})();
+
+
+</script>
+</body>
+</html>
